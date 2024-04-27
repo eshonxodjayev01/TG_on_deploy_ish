@@ -1,3 +1,5 @@
+from typing import Tuple
+
 from django.contrib.auth.models import User
 from django.db import models
 
@@ -75,3 +77,68 @@ class CartItem(models.Model):
 
     def __str__(self):
         return f'{self.product}'
+
+
+class Order(models.Model):
+    name = models.CharField(max_length=191)
+    email = models.EmailField()
+    postal_code = models.IntegerField()
+    address = models.CharField(max_length=191)
+    date = models.DateTimeField(auto_now_add=True)
+    paid = models.BooleanField(default=False)
+
+    def __str__(self):
+        return "{}:{}".format(self.id, self.email)
+
+    def total_cost(self):
+        return sum([ li.cost() for li in self.lineitem_set.all() ] )
+
+
+
+class Payment(models.Model):
+    PAYPAL_PAYMENT_METHOD: str = 'PayPal'
+
+    PAYMENT_METHODS: Tuple[Tuple[str, str], ...] = (
+        (PAYPAL_PAYMENT_METHOD, 'PayPal'),
+    )
+
+    amount = models.FloatField()
+    raw_response = models.TextField()
+    successful = models.BooleanField(default=False)
+    timestamp = models.DateTimeField(auto_now_add=True)
+    payment_method = models.CharField(max_length=20, choices=PAYMENT_METHODS, )
+    order = models.ForeignKey(
+        to=CartItem,
+        on_delete=models.CASCADE,
+        related_name='payments',
+    )
+
+    def __str__(self) -> str:
+        return self.reference_number
+
+    @property
+    def reference_number(self):
+        return f"PAYMENT-{self.order}-{self.pk}"
+
+
+
+
+
+class StripePayment(models.Model):
+    amount = models.FloatField(default=0)
+    successful = models.BooleanField(default=False)
+    payment_intent_id = models.CharField(max_length=100)
+    timestamp = models.DateTimeField(auto_now_add=True)
+    order = models.ForeignKey(
+        to=CartItem,
+        on_delete=models.CASCADE,
+        related_name='stripe_payments',
+    )
+
+    def __str__(self) -> str:
+        return self.reference_number
+
+    @property
+    def reference_number(self) -> str:
+        return f"STRIPE-PAYMENT-{self.order}-{self.pk}"
+
