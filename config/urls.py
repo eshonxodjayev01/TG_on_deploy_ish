@@ -7,6 +7,8 @@ from config import settings
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('burger.urls')),
+    path('accounts/', include('accounts.urls')),
+    path('payment/', include('payment.urls')),
 ]
 
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

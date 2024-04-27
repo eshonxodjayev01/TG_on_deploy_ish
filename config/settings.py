@@ -26,8 +26,11 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     # global apps
+    'crispy_forms',
 
     # local apps
+    'accounts',
+    'payment',
     'burger.apps.BurgerConfig',
 
 ]
