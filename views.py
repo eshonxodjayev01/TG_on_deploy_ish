@@ -9,7 +9,7 @@ from .models import Cart ,CartItem
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.decorators import login_required
 
-
+a =0
 def home_page_view(request):
     last_three_burger = Burger.objects.all().order_by('published_time')[:3]
     context = {
